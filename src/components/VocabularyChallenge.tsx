@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { generateMinecraftSentence } from '../lib/gemini';
-import { Pickaxe, ArrowLeft, Sparkles, Sword, Loader2 } from 'lucide-react';
+import { Pickaxe, ArrowLeft, Sparkles, Sword, Loader2, Volume2 } from 'lucide-react';
 
 interface Word {
   id: number;
@@ -34,6 +34,13 @@ export default function VocabularyChallenge({ packId, onBack }: { packId: number
 
   const currentWord = words[currentIndex];
 
+  const speak = (text: string) => {
+    const utterance = new SpeechSynthesisUtterance(text);
+    utterance.lang = 'en-US';
+    utterance.rate = 0.9;
+    window.speechSynthesis.speak(utterance);
+  };
+
   useEffect(() => {
     let isMounted = true;
     const fetchSentence = async () => {
@@ -48,6 +55,7 @@ export default function VocabularyChallenge({ packId, onBack }: { packId: number
     };
     
     if (isFlipped) {
+      speak(currentWord.word);
       fetchSentence();
     }
     
@@ -139,16 +147,34 @@ export default function VocabularyChallenge({ packId, onBack }: { packId: number
 
           {/* Back of Card (Stone/Iron Panel Style) */}
           <div className="absolute w-full h-full backface-hidden rotate-y-180 mc-panel flex flex-col p-6">
-            <h2 className="text-4xl font-pixel text-gray-800 mb-2 border-b-4 border-gray-400 pb-2">
-              {currentWord.word}
-            </h2>
+            <div className="flex items-center justify-between mb-2 border-b-4 border-gray-400 pb-2">
+              <h2 className="text-4xl font-pixel text-gray-800">
+                {currentWord.word}
+              </h2>
+              <button 
+                onClick={(e) => { e.stopPropagation(); speak(currentWord.word); }}
+                className="mc-btn bg-gray-300 border-2 border-gray-500 p-1 hover:bg-gray-400"
+              >
+                <Volume2 className="w-6 h-6 text-gray-700" />
+              </button>
+            </div>
             <p className="text-2xl font-bold text-gray-700 mb-6">{currentWord.meaning}</p>
             
             <div className="flex-1 bg-black/5 border-4 border-black/10 p-4 relative">
               <div className="absolute -top-3 -left-3 bg-yellow-400 border-2 border-black p-1">
                 <Sparkles className="w-4 h-4 text-black" />
               </div>
-              <h3 className="font-pixel text-lg text-gray-600 mb-2">AI 附魔例句 (Minecraft Theme):</h3>
+              <div className="flex items-center justify-between mb-2">
+                <h3 className="font-pixel text-lg text-gray-600">AI 附魔例句 (Minecraft Theme):</h3>
+                {aiData && (
+                  <button 
+                    onClick={(e) => { e.stopPropagation(); speak(aiData.sentence); }}
+                    className="text-gray-500 hover:text-gray-800"
+                  >
+                    <Volume2 className="w-4 h-4" />
+                  </button>
+                )}
+              </div>
               
               {isLoadingAi ? (
                 <div className="flex items-center justify-center h-20">

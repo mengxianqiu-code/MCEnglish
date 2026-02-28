@@ -2,9 +2,11 @@ import React, { useState } from 'react';
 import { BookOpen, Mic, Trophy, LayoutDashboard, User, Pickaxe, Sword } from 'lucide-react';
 import VocabularyChallenge from './components/VocabularyChallenge';
 import PackSelector from './components/PackSelector';
+import ReadingModule from './components/ReadingModule';
+import SpeakingModule from './components/SpeakingModule';
 
 export default function App() {
-  const [currentView, setCurrentView] = useState<'dashboard' | 'pack_select' | 'vocab'>('dashboard');
+  const [currentView, setCurrentView] = useState<'dashboard' | 'pack_select' | 'vocab' | 'reading' | 'speaking'>('dashboard');
   const [selectedPackId, setSelectedPackId] = useState<number | null>(null);
 
   if (currentView === 'pack_select') {
@@ -28,6 +30,22 @@ export default function App() {
           packId={selectedPackId} 
           onBack={() => setCurrentView('pack_select')} 
         />
+      </div>
+    );
+  }
+
+  if (currentView === 'reading') {
+    return (
+      <div className="min-h-screen font-sans">
+        <ReadingModule onBack={() => setCurrentView('dashboard')} />
+      </div>
+    );
+  }
+
+  if (currentView === 'speaking') {
+    return (
+      <div className="min-h-screen font-sans">
+        <SpeakingModule onBack={() => setCurrentView('dashboard')} />
       </div>
     );
   }
@@ -87,7 +105,10 @@ export default function App() {
           </div>
 
           {/* Module 1: Reading */}
-          <div className="mc-panel p-6 opacity-80 hover:opacity-100 transition-opacity cursor-not-allowed">
+          <div 
+            onClick={() => setCurrentView('reading')}
+            className="mc-panel p-6 cursor-pointer group hover:-translate-y-2 transition-transform"
+          >
             <div className="w-16 h-16 bg-blue-200 border-4 border-blue-400 flex items-center justify-center mb-5">
               <BookOpen className="w-8 h-8 text-blue-700" />
             </div>
@@ -96,18 +117,21 @@ export default function App() {
             <div className="w-full bg-gray-800 border-2 border-black h-4 mb-2 p-0.5">
               <div className="bg-blue-500 h-full" style={{ width: '45%' }}></div>
             </div>
-            <span className="text-sm font-pixel text-gray-600">附魔进度 45% (开发中)</span>
+            <span className="text-sm font-pixel text-gray-600">点击进入图书馆 →</span>
           </div>
 
           {/* Module 2: Speaking/Chat */}
-          <div className="mc-panel p-6 opacity-80 hover:opacity-100 transition-opacity cursor-not-allowed">
+          <div 
+            onClick={() => setCurrentView('speaking')}
+            className="mc-panel p-6 cursor-pointer group hover:-translate-y-2 transition-transform"
+          >
             <div className="w-16 h-16 bg-emerald-200 border-4 border-emerald-400 flex items-center justify-center mb-5">
               <Mic className="w-8 h-8 text-emerald-700" />
             </div>
             <h3 className="text-2xl font-pixel mb-2 text-gray-900">村民交易对话</h3>
             <p className="text-gray-700 font-bold mb-6 flex-grow">模拟真实生活场景，和 AI 村民进行一对一口语交易练习，告别哑巴英语。</p>
-            <button className="mc-btn bg-gray-400 border-4 border-gray-500 text-gray-700 w-full py-3 font-pixel text-xl flex items-center justify-center gap-2">
-              即将开放
+            <button className="mc-btn mc-btn-blue w-full py-3 font-pixel text-xl flex items-center justify-center gap-2">
+              前往集市交易
             </button>
           </div>
 

@@ -33,3 +33,57 @@ export async function generateMinecraftSentence(word: string) {
     return null;
   }
 }
+
+export async function analyzeArticle(content: string) {
+  try {
+    const response = await ai.models.generateContent({
+      model: "gemini-3-flash-preview",
+      contents: `You are an English teacher. Analyze the following Minecraft-themed article for a middle school student.
+      Identify:
+      1. Key vocabulary words (3-5 words) with their Chinese meanings.
+      2. Difficult sentences (1-2 sentences) with grammatical analysis and Chinese translation.
+      3. A short summary of the article in English.
+      
+      Article: "${content}"`,
+      config: {
+        responseMimeType: "application/json",
+        responseSchema: {
+          type: Type.OBJECT,
+          properties: {
+            vocabulary: {
+              type: Type.ARRAY,
+              items: {
+                type: Type.OBJECT,
+                properties: {
+                  word: { type: Type.STRING },
+                  meaning: { type: Type.STRING }
+                }
+              }
+            },
+            difficultSentences: {
+              type: Type.ARRAY,
+              items: {
+                type: Type.OBJECT,
+                properties: {
+                  sentence: { type: Type.STRING },
+                  analysis: { type: Type.STRING },
+                  translation: { type: Type.STRING }
+                }
+              }
+            },
+            summary: { type: Type.STRING }
+          },
+          required: ["vocabulary", "difficultSentences", "summary"]
+        }
+      }
+    });
+
+    if (response.text) {
+      return JSON.parse(response.text);
+    }
+    return null;
+  } catch (error) {
+    console.error("Error analyzing article:", error);
+    return null;
+  }
+}

@@ -28,6 +28,43 @@ async function startServer() {
     }
   });
 
+  app.get("/api/articles", (req, res) => {
+    try {
+      const level = req.query.level ? Number(req.query.level) : 1;
+      const articles = getArticlesByDifficulty(level);
+      res.json(articles);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch articles" });
+    }
+  });
+
+  app.get("/api/articles/:id", (req, res) => {
+    try {
+      const article = getArticleById(Number(req.params.id));
+      res.json(article);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch article" });
+    }
+  });
+
+  app.get("/api/scenarios", (req, res) => {
+    try {
+      const scenarios = getScenarios();
+      res.json(scenarios);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch scenarios" });
+    }
+  });
+
+  app.get("/api/scenarios/:id", (req, res) => {
+    try {
+      const scenario = getScenarioById(Number(req.params.id));
+      res.json(scenario);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch scenario" });
+    }
+  });
+
   // Vite middleware for development
   if (process.env.NODE_ENV !== "production") {
     const vite = await createViteServer({
