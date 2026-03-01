@@ -1,12 +1,14 @@
 import React, { useState } from 'react';
-import { BookOpen, Mic, Trophy, LayoutDashboard, User, Pickaxe, Sword } from 'lucide-react';
+import { BookOpen, Mic, Trophy, LayoutDashboard, User, Pickaxe, Sword, Backpack, Scroll } from 'lucide-react';
 import VocabularyChallenge from './components/VocabularyChallenge';
 import PackSelector from './components/PackSelector';
 import ReadingModule from './components/ReadingModule';
 import SpeakingModule from './components/SpeakingModule';
+import InventoryModule from './components/InventoryModule';
+import QuizModule from './components/QuizModule';
 
 export default function App() {
-  const [currentView, setCurrentView] = useState<'dashboard' | 'pack_select' | 'vocab' | 'reading' | 'speaking'>('dashboard');
+  const [currentView, setCurrentView] = useState<'dashboard' | 'pack_select' | 'vocab' | 'reading' | 'speaking' | 'inventory' | 'quiz'>('dashboard');
   const [selectedPackId, setSelectedPackId] = useState<number | null>(null);
 
   if (currentView === 'pack_select') {
@@ -50,6 +52,22 @@ export default function App() {
     );
   }
 
+  if (currentView === 'inventory') {
+    return (
+      <div className="min-h-screen font-sans">
+        <InventoryModule onBack={() => setCurrentView('dashboard')} />
+      </div>
+    );
+  }
+
+  if (currentView === 'quiz') {
+    return (
+      <div className="min-h-screen font-sans">
+        <QuizModule onBack={() => setCurrentView('dashboard')} />
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen font-sans pb-12">
       {/* Header */}
@@ -60,11 +78,12 @@ export default function App() {
             <span className="text-2xl font-pixel tracking-wider drop-shadow-[2px_2px_0_rgba(255,255,255,0.8)]">LingoTeen</span>
           </div>
           <nav className="hidden sm:flex items-center gap-6 text-lg font-pixel text-gray-700">
-            <a href="#" className="flex items-center gap-1 bg-black/10 px-4 py-2 border-2 border-black/20">
+            <button onClick={() => setCurrentView('dashboard')} className="flex items-center gap-1 bg-black/10 px-4 py-2 border-2 border-black/20 hover:bg-black/20">
               <LayoutDashboard className="w-5 h-5"/> 基地大厅
-            </a>
-            <a href="#" className="hover:text-black transition-colors">我的背包(词库)</a>
-            <a href="#" className="hover:text-black transition-colors">探险记录</a>
+            </button>
+            <button onClick={() => setCurrentView('inventory')} className="flex items-center gap-1 hover:text-black transition-colors hover:bg-black/10 px-4 py-2 border-2 border-transparent hover:border-black/20">
+              <Backpack className="w-5 h-5"/> 我的背包(词库)
+            </button>
           </nav>
           <div className="w-10 h-10 bg-gray-300 border-2 border-gray-500 flex items-center justify-center text-gray-700 cursor-pointer">
             <User className="w-6 h-6" />
@@ -132,6 +151,21 @@ export default function App() {
             <p className="text-gray-700 font-bold mb-6 flex-grow">模拟真实生活场景，和 AI 村民进行一对一口语交易练习，告别哑巴英语。</p>
             <button className="mc-btn mc-btn-blue w-full py-3 font-pixel text-xl flex items-center justify-center gap-2">
               前往集市交易
+            </button>
+          </div>
+
+          {/* Module 4: Quiz */}
+          <div 
+            onClick={() => setCurrentView('quiz')}
+            className="mc-panel p-6 cursor-pointer group hover:-translate-y-2 transition-transform"
+          >
+            <div className="w-16 h-16 bg-red-200 border-4 border-red-400 flex items-center justify-center mb-5">
+              <Scroll className="w-8 h-8 text-red-700" />
+            </div>
+            <h3 className="text-2xl font-pixel mb-2 text-gray-900">末地试炼场</h3>
+            <p className="text-gray-700 font-bold mb-6 flex-grow">综合能力测试，包含选择、填空和听力。挑战末影龙，赢取大师称号！</p>
+            <button className="mc-btn mc-btn-red w-full py-3 font-pixel text-xl flex items-center justify-center gap-2">
+              <Sword className="w-5 h-5" /> 开始试炼
             </button>
           </div>
 

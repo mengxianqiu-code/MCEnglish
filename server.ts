@@ -7,7 +7,13 @@ import {
   getArticlesByDifficulty, 
   getArticleById, 
   getScenarios, 
-  getScenarioById 
+  getScenarioById,
+  getUserProgress,
+  getInventory,
+  getSavedWords,
+  addSavedWord,
+  removeSavedWord,
+  getQuizQuestions
 } from "./src/db/database";
 
 async function startServer() {
@@ -70,6 +76,67 @@ async function startServer() {
       res.json(scenario);
     } catch (error) {
       res.status(500).json({ error: "Failed to fetch scenario" });
+    }
+  });
+
+  // User & Inventory Routes
+  app.get("/api/user/progress", (req, res) => {
+    try {
+      const progress = getUserProgress();
+      res.json(progress);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch progress" });
+    }
+  });
+
+  app.get("/api/user/inventory", (req, res) => {
+    try {
+      const inventory = getInventory();
+      res.json(inventory);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch inventory" });
+    }
+  });
+
+  app.get("/api/user/saved-words", (req, res) => {
+    try {
+      const words = getSavedWords();
+      res.json(words);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch saved words" });
+    }
+  });
+
+  app.post("/api/user/saved-words", express.json(), (req, res) => {
+    try {
+      const { word, meaning } = req.body;
+      addSavedWord(word, meaning);
+      res.json({ success: true });
+    } catch (error) {
+      res.status(500).json({ error: "Failed to save word" });
+    }
+  });
+
+  app.delete("/api/user/saved-words/:id", (req, res) => {
+    try {
+      removeSavedWord(Number(req.params.id));
+      res.json({ success: true });
+    } catch (error) {
+      res.status(500).json({ error: "Failed to remove word" });
+    }
+  });
+
+  app.get("/api/quiz", (req, res) => {
+    try {
+      const questions = getQuizQuestions();
+      // Parse options JSON string back to array
+      const parsedQuestions = questions.map((q: any) => ({
+        ...q,
+        options: JSON.parse(q.options)
+      }));
+      res.json(parsedQuestions);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch quiz" });
     }
   });
 

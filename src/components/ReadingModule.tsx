@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { ArrowLeft, BookOpen, Loader2, Sparkles, Volume2 } from 'lucide-react';
+import { ArrowLeft, BookOpen, Loader2, Sparkles, Volume2, Box, Check } from 'lucide-react';
 import { analyzeArticle } from '../lib/gemini';
 
 interface Article {
@@ -23,6 +23,7 @@ export default function ReadingModule({ onBack }: { onBack: () => void }) {
   const [analysis, setAnalysis] = useState<Analysis | null>(null);
   const [isLoadingArticles, setIsLoadingArticles] = useState(true);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const [savedWords, setSavedWords] = useState<Set<string>>(new Set());
 
   useEffect(() => {
     setIsLoadingArticles(true);
@@ -41,6 +42,21 @@ export default function ReadingModule({ onBack }: { onBack: () => void }) {
     const result = await analyzeArticle(article.content);
     setAnalysis(result);
     setIsAnalyzing(false);
+  };
+
+  const handleSaveWord = async (word: string, meaning: string) => {
+    try {
+      const res = await fetch('/api/user/saved-words', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ word, meaning })
+      });
+      if (res.ok) {
+        setSavedWords(prev => new Set(prev).add(word));
+      }
+    } catch (err) {
+      console.error('Failed to save word', err);
+    }
   };
 
   const speak = (text: string) => {
@@ -90,8 +106,18 @@ export default function ReadingModule({ onBack }: { onBack: () => void }) {
                   <div className="space-y-3">
                     {analysis.vocabulary.map((v, i) => (
                       <div key={i} className="flex items-center justify-between bg-white p-3 border-2 border-blue-200">
-                        <span className="font-bold text-lg">{v.word}</span>
-                        <span className="text-gray-600">{v.meaning}</span>
+                        <div className="flex-1">
+                          <span className="font-bold text-lg mr-2">{v.word}</span>
+                          <span className="text-gray-600">{v.meaning}</span>
+                        </div>
+                        <button 
+                          onClick={() => handleSaveWord(v.word, v.meaning)}
+                          className={`ml-2 p-2 rounded border-2 transition-colors ${savedWords.has(v.word) ? 'bg-green-100 border-green-500 text-green-700' : 'bg-purple-100 border-purple-300 text-purple-800 hover:bg-purple-200'}`}
+                          title="加入末影箱"
+                          disabled={savedWords.has(v.word)}
+                        >
+                          {savedWords.has(v.word) ? <Check className="w-4 h-4" /> : <Box className="w-4 h-4" />}
+                        </button>
                       </div>
                     ))}
                   </div>

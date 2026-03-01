@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { generateMinecraftSentence } from '../lib/gemini';
-import { Pickaxe, ArrowLeft, Sparkles, Sword, Loader2, Volume2 } from 'lucide-react';
+import { Pickaxe, ArrowLeft, Sparkles, Sword, Loader2, Volume2, Box, Check } from 'lucide-react';
 
 interface Word {
   id: number;
@@ -17,6 +17,7 @@ export default function VocabularyChallenge({ packId, onBack }: { packId: number
   const [aiData, setAiData] = useState<{ sentence: string; translation: string } | null>(null);
   const [isLoadingAi, setIsLoadingAi] = useState(false);
   const [isLoadingWords, setIsLoadingWords] = useState(true);
+  const [savedSuccess, setSavedSuccess] = useState(false);
 
   // Fetch words for this pack
   useEffect(() => {
@@ -39,6 +40,23 @@ export default function VocabularyChallenge({ packId, onBack }: { packId: number
     utterance.lang = 'en-US';
     utterance.rate = 0.9;
     window.speechSynthesis.speak(utterance);
+  };
+
+  const handleSaveWord = async (e: React.MouseEvent) => {
+    e.stopPropagation();
+    try {
+      const res = await fetch('/api/user/saved-words', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ word: currentWord.word, meaning: currentWord.meaning })
+      });
+      if (res.ok) {
+        setSavedSuccess(true);
+        setTimeout(() => setSavedSuccess(false), 2000);
+      }
+    } catch (err) {
+      console.error('Failed to save word', err);
+    }
   };
 
   useEffect(() => {
@@ -151,12 +169,21 @@ export default function VocabularyChallenge({ packId, onBack }: { packId: number
               <h2 className="text-4xl font-pixel text-gray-800">
                 {currentWord.word}
               </h2>
-              <button 
-                onClick={(e) => { e.stopPropagation(); speak(currentWord.word); }}
-                className="mc-btn bg-gray-300 border-2 border-gray-500 p-1 hover:bg-gray-400"
-              >
-                <Volume2 className="w-6 h-6 text-gray-700" />
-              </button>
+              <div className="flex gap-2">
+                <button 
+                  onClick={handleSaveWord}
+                  className={`mc-btn p-1 border-2 ${savedSuccess ? 'bg-green-200 border-green-500' : 'bg-purple-200 border-purple-500 hover:bg-purple-300'}`}
+                  title="加入末影箱 (生词本)"
+                >
+                  {savedSuccess ? <Check className="w-6 h-6 text-green-700" /> : <Box className="w-6 h-6 text-purple-900" />}
+                </button>
+                <button 
+                  onClick={(e) => { e.stopPropagation(); speak(currentWord.word); }}
+                  className="mc-btn bg-gray-300 border-2 border-gray-500 p-1 hover:bg-gray-400"
+                >
+                  <Volume2 className="w-6 h-6 text-gray-700" />
+                </button>
+              </div>
             </div>
             <p className="text-2xl font-bold text-gray-700 mb-6">{currentWord.meaning}</p>
             

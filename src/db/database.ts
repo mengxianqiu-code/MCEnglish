@@ -44,10 +44,70 @@ export function initDb() {
       character_gender TEXT NOT NULL,
       initial_message TEXT NOT NULL
     );
+
+    CREATE TABLE IF NOT EXISTS user_progress (
+      id INTEGER PRIMARY KEY CHECK (id = 1),
+      emeralds INTEGER DEFAULT 0,
+      xp INTEGER DEFAULT 0,
+      level INTEGER DEFAULT 1
+    );
+
+    CREATE TABLE IF NOT EXISTS inventory (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      item_type TEXT NOT NULL,
+      count INTEGER DEFAULT 1,
+      name TEXT NOT NULL,
+      description TEXT
+    );
+
+    CREATE TABLE IF NOT EXISTS saved_words (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      word TEXT NOT NULL,
+      meaning TEXT NOT NULL,
+      added_at DATETIME DEFAULT CURRENT_TIMESTAMP
+    );
+
+    CREATE TABLE IF NOT EXISTS quiz_questions (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      question TEXT NOT NULL,
+      options TEXT NOT NULL, -- JSON array of options
+      correct_answer TEXT NOT NULL,
+      explanation TEXT NOT NULL,
+      type TEXT NOT NULL -- 'multiple_choice', 'fill_blank', 'listening'
+    );
   `);
 
   // Seed data if empty
   const packCount = db.prepare('SELECT COUNT(*) as count FROM packs').get() as { count: number };
+  
+  // Initialize user progress if not exists
+  const userCount = db.prepare('SELECT COUNT(*) as count FROM user_progress').get() as { count: number };
+  if (userCount.count === 0) {
+    db.prepare('INSERT INTO user_progress (id, emeralds, xp, level) VALUES (1, 0, 0, 1)').run();
+    
+    // Seed initial inventory
+    const insertItem = db.prepare('INSERT INTO inventory (item_type, count, name, description) VALUES (?, ?, ?, ?)');
+    insertItem.run('ender_chest', 1, '末影箱', '存放你的生词和难点');
+    insertItem.run('compass', 1, '探险指南针', '记录你的连续学习天数');
+    insertItem.run('book_quill', 1, '冒险日记', '查看你的学习统计数据');
+  }
+
+  // Seed Quiz Questions
+  const quizCount = db.prepare('SELECT COUNT(*) as count FROM quiz_questions').get() as { count: number };
+  if (quizCount.count === 0) {
+    const insertQuiz = db.prepare('INSERT INTO quiz_questions (question, options, correct_answer, explanation, type) VALUES (?, ?, ?, ?, ?)');
+    db.transaction(() => {
+      // Multiple Choice
+      insertQuiz.run('What is the meaning of "environment"?', JSON.stringify(['提供', '环境', '保护', '自然']), '环境', 'Environment means the surroundings or conditions in which a person, animal, or plant lives.', 'multiple_choice');
+      insertQuiz.run('Which word means "to build"?', JSON.stringify(['collect', 'achieve', 'build', 'allow']), 'build', 'Build means to construct something by putting parts or material together.', 'multiple_choice');
+      
+      // Fill in the Blank
+      insertQuiz.run('The ____ provides everything we need to survive.', JSON.stringify(['nature', 'building', 'computer', 'car']), 'nature', 'Nature provides resources like food, water, and shelter.', 'fill_blank');
+      
+      // Listening (Simulated with text for now, but UI will use TTS)
+      insertQuiz.run('Listen and select the correct word: "mysterious"', JSON.stringify(['mysterious', 'material', 'mountain', 'monster']), 'mysterious', 'The word spoken was "mysterious".', 'listening');
+    })();
+  }
   
   if (packCount.count === 0) {
     console.log('Seeding initial vocabulary packs...');
@@ -188,4 +248,38 @@ export function getScenarios() {
 
 export function getScenarioById(id: number) {
   return db.prepare('SELECT * FROM scenarios WHERE id = ?').get(id);
+}
+
+// User Progress & Inventory Functions
+export function getUserProgress() {
+  return db.prepare('SELECT * FROM user_progress WHERE id = 1').get();
+}
+
+export function updateUserProgress(emeralds: number, xp: number) {
+  return db.prepare('UPDATE user_progress SET emeralds = emeralds + ?, xp = xp + ? WHERE id = 1').run(emeralds, xp);
+}
+
+export function getInventory() {
+  return db.prepare('SELECT * FROM inventory').all();
+}
+
+export function getSavedWords() {
+  return db.prepare('SELECT * FROM saved_words ORDER BY added_at DESC').all();
+}
+
+export function addSavedWord(word: string, meaning: string) {
+  // Check if word already exists
+  const exists = db.prepare('SELECT id FROM saved_words WHERE word = ?').get(word);
+  if (!exists) {
+    return db.prepare('INSERT INTO saved_words (word, meaning) VALUES (?, ?)').run(word, meaning);
+  }
+  return null;
+}
+
+export function removeSavedWord(id: number) {
+  return db.prepare('DELETE FROM saved_words WHERE id = ?').run(id);
+}
+
+export function getQuizQuestions() {
+  return db.prepare('SELECT * FROM quiz_questions ORDER BY RANDOM() LIMIT 5').all();
 }
