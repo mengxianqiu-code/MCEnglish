@@ -9,6 +9,7 @@ import {
   getScenarios, 
   getScenarioById 
 } from "./src/db/database";
+import { generateAssessmentQuestions, generateAssessmentFeedback } from "./src/lib/gemini";
 
 async function startServer() {
   // Initialize SQLite Database
@@ -16,6 +17,8 @@ async function startServer() {
 
   const app = express();
   const PORT = 3000;
+
+  app.use(express.json());
 
   // API Routes
   app.get("/api/packs", (req, res) => {
@@ -70,6 +73,34 @@ async function startServer() {
       res.json(scenario);
     } catch (error) {
       res.status(500).json({ error: "Failed to fetch scenario" });
+    }
+  });
+
+  app.post("/api/assessment/generate", async (req, res) => {
+    try {
+      const { difficulty } = req.body;
+      const questions = await generateAssessmentQuestions(Number(difficulty) || 1);
+      if (!questions) {
+        return res.status(500).json({ error: "Failed to generate assessment questions" });
+      }
+      res.json(questions);
+    } catch (error) {
+      console.error("Assessment generate error:", error);
+      res.status(500).json({ error: "Failed to generate assessment questions" });
+    }
+  });
+
+  app.post("/api/assessment/feedback", async (req, res) => {
+    try {
+      const { questions, userAnswers } = req.body;
+      const feedback = await generateAssessmentFeedback(questions, userAnswers);
+      if (!feedback) {
+        return res.status(500).json({ error: "Failed to generate assessment feedback" });
+      }
+      res.json(feedback);
+    } catch (error) {
+      console.error("Assessment feedback error:", error);
+      res.status(500).json({ error: "Failed to generate assessment feedback" });
     }
   });
 
