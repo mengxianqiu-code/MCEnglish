@@ -1,12 +1,13 @@
 import React, { useState } from 'react';
-import { BookOpen, Mic, Trophy, LayoutDashboard, User, Pickaxe, Sword } from 'lucide-react';
+import { BookOpen, Mic, Trophy, LayoutDashboard, User, Pickaxe, Sword, Shield } from 'lucide-react';
 import VocabularyChallenge from './components/VocabularyChallenge';
 import PackSelector from './components/PackSelector';
 import ReadingModule from './components/ReadingModule';
 import SpeakingModule from './components/SpeakingModule';
+import EnglishAssessment from './components/EnglishAssessment';
 
 export default function App() {
-  const [currentView, setCurrentView] = useState<'dashboard' | 'pack_select' | 'vocab' | 'reading' | 'speaking'>('dashboard');
+  const [currentView, setCurrentView] = useState<'dashboard' | 'pack_select' | 'vocab' | 'reading' | 'speaking' | 'assessment'>('dashboard');
   const [selectedPackId, setSelectedPackId] = useState<number | null>(null);
 
   if (currentView === 'pack_select') {
@@ -50,6 +51,14 @@ export default function App() {
     );
   }
 
+  if (currentView === 'assessment') {
+    return (
+      <div className="min-h-screen font-sans">
+        <EnglishAssessment onBack={() => setCurrentView('dashboard')} />
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen font-sans pb-12">
       {/* Header */}
@@ -65,6 +74,12 @@ export default function App() {
             </a>
             <a href="#" className="hover:text-black transition-colors">我的背包(词库)</a>
             <a href="#" className="hover:text-black transition-colors">探险记录</a>
+            <button
+              onClick={() => setCurrentView('assessment')}
+              className="hover:text-black transition-colors flex items-center gap-1"
+            >
+              <Shield className="w-4 h-4" /> 测评
+            </button>
           </nav>
           <div className="w-10 h-10 bg-gray-300 border-2 border-gray-500 flex items-center justify-center text-gray-700 cursor-pointer">
             <User className="w-6 h-6" />
@@ -85,6 +100,24 @@ export default function App() {
         {/* Modules Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           
+          {/* Module: Assessment */}
+          <div
+            onClick={() => setCurrentView('assessment')}
+            className="mc-panel p-6 cursor-pointer group hover:-translate-y-2 transition-transform relative"
+          >
+            <div className="absolute -top-4 -right-4 bg-red-500 border-4 border-black text-white font-pixel px-3 py-1 transform rotate-12 z-10">
+              BOSS!
+            </div>
+            <div className="w-16 h-16 bg-red-800 border-4 border-red-950 flex items-center justify-center mb-5">
+              <Shield className="w-8 h-8 text-red-300 drop-shadow-[2px_2px_0_rgba(0,0,0,0.8)]" />
+            </div>
+            <h3 className="text-2xl font-pixel mb-2 text-gray-900">BOSS战 - 英语测评</h3>
+            <p className="text-gray-700 font-bold mb-6 flex-grow">挑战终极 BOSS，5 种题型全面测评英语水平，获得 AI 个性化学习报告！</p>
+            <button className="mc-btn mc-btn-red w-full py-3 font-pixel text-xl flex items-center justify-center gap-2">
+              <Sword className="w-5 h-5" /> 开始挑战
+            </button>
+          </div>
+
           {/* Module 3: Vocabulary */}
           <div 
             onClick={() => setCurrentView('pack_select')}
