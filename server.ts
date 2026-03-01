@@ -1,6 +1,14 @@
 import express from "express";
 import { createServer as createViteServer } from "vite";
-import { initDb, getPacks, getWordsByPack } from "./src/db/database";
+import { 
+  initDb, 
+  getPacks, 
+  getWordsByPack, 
+  getArticlesByDifficulty, 
+  getArticleById, 
+  getScenarios, 
+  getScenarioById 
+} from "./src/db/database";
 
 async function startServer() {
   // Initialize SQLite Database
