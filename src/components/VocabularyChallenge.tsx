@@ -89,6 +89,21 @@ export default function VocabularyChallenge({ packId, onBack }: { packId: number
       } else {
         setXp(newXp);
       }
+
+      // Log activity and increment mastered count
+      fetch('/api/user/activity', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ type: '单词掌握', xp: 20, duration: 1 })
+      });
+      fetch('/api/user/mastered', { method: 'POST' });
+    } else {
+      // Log simple practice
+      fetch('/api/user/activity', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ type: '单词练习', xp: 5, duration: 1 })
+      });
     }
     
     setIsFlipped(false);

@@ -28,6 +28,34 @@ export default function PackSelector({ onSelectPack, onBack }: { onSelectPack: (
 
   const getThemeStyles = (theme: string) => {
     switch (theme) {
+      case 'plains':
+        return {
+          bg: 'bg-[#7CFC00]',
+          border: 'border-[#556B2F]',
+          top: 'bg-[#32CD32]',
+          topBorder: 'border-[#228B22]',
+        };
+      case 'forest':
+        return {
+          bg: 'bg-[#228B22]',
+          border: 'border-[#006400]',
+          top: 'bg-[#008000]',
+          topBorder: 'border-[#004d00]',
+        };
+      case 'ocean':
+        return {
+          bg: 'bg-[#00CED1]',
+          border: 'border-[#008B8B]',
+          top: 'bg-[#20B2AA]',
+          topBorder: 'border-[#008080]',
+        };
+      case 'mineshaft':
+        return {
+          bg: 'bg-[#8B4513]',
+          border: 'border-[#5D4037]',
+          top: 'bg-[#A0522D]',
+          topBorder: 'border-[#8B4513]',
+        };
       case 'overworld':
         return {
           bg: 'bg-[#8B5A2B]',
@@ -48,6 +76,13 @@ export default function PackSelector({ onSelectPack, onBack }: { onSelectPack: (
           border: 'border-[#D3D3A4]',
           top: 'bg-[#FFF8DC]',
           topBorder: 'border-[#EEDC82]',
+        };
+      case 'deep_dark':
+        return {
+          bg: 'bg-[#0D161B]',
+          border: 'border-[#030506]',
+          top: 'bg-[#006666]',
+          topBorder: 'border-[#004d4d]',
         };
       default:
         return {

@@ -6,9 +6,10 @@ import ReadingModule from './components/ReadingModule';
 import SpeakingModule from './components/SpeakingModule';
 import InventoryModule from './components/InventoryModule';
 import QuizModule from './components/QuizModule';
+import UserProfile from './components/UserProfile';
 
 export default function App() {
-  const [currentView, setCurrentView] = useState<'dashboard' | 'pack_select' | 'vocab' | 'reading' | 'speaking' | 'inventory' | 'quiz'>('dashboard');
+  const [currentView, setCurrentView] = useState<'dashboard' | 'pack_select' | 'vocab' | 'reading' | 'speaking' | 'inventory' | 'quiz' | 'profile'>('dashboard');
   const [selectedPackId, setSelectedPackId] = useState<number | null>(null);
 
   if (currentView === 'pack_select') {
@@ -68,6 +69,14 @@ export default function App() {
     );
   }
 
+  if (currentView === 'profile') {
+    return (
+      <div className="min-h-screen font-sans">
+        <UserProfile onBack={() => setCurrentView('dashboard')} />
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen font-sans pb-12">
       {/* Header */}
@@ -85,7 +94,10 @@ export default function App() {
               <Backpack className="w-5 h-5"/> 我的背包(词库)
             </button>
           </nav>
-          <div className="w-10 h-10 bg-gray-300 border-2 border-gray-500 flex items-center justify-center text-gray-700 cursor-pointer">
+          <div 
+            onClick={() => setCurrentView('profile')}
+            className="w-10 h-10 bg-gray-300 border-2 border-gray-500 flex items-center justify-center text-gray-700 cursor-pointer hover:bg-gray-200 transition-colors"
+          >
             <User className="w-6 h-6" />
           </div>
         </div>

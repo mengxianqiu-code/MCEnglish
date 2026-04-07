@@ -13,7 +13,11 @@ import {
   getSavedWords,
   addSavedWord,
   removeSavedWord,
-  getQuizQuestions
+  getQuizQuestions,
+  getStudyLogs,
+  logActivity,
+  incrementStudyTime,
+  incrementMasteredWords
 } from "./src/db/database";
 
 async function startServer() {
@@ -137,6 +141,39 @@ async function startServer() {
       res.json(parsedQuestions);
     } catch (error) {
       res.status(500).json({ error: "Failed to fetch quiz" });
+    }
+  });
+
+  app.get("/api/user/logs", (req, res) => {
+    try {
+      const logs = getStudyLogs();
+      res.json(logs);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch logs" });
+    }
+  });
+
+  app.post("/api/user/activity", express.json(), (req, res) => {
+    try {
+      const { type, xp, duration } = req.body;
+      if (type && xp !== undefined) {
+        logActivity(type, xp);
+      }
+      if (duration) {
+        incrementStudyTime(duration);
+      }
+      res.json({ success: true });
+    } catch (error) {
+      res.status(500).json({ error: "Failed to log activity" });
+    }
+  });
+
+  app.post("/api/user/mastered", (req, res) => {
+    try {
+      incrementMasteredWords();
+      res.json({ success: true });
+    } catch (error) {
+      res.status(500).json({ error: "Failed to update mastered words" });
     }
   });
 
